@@ -9,69 +9,24 @@ import "@fontsource/roboto/700.css"
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
 import WujieReact from "wujie-react"
-// import { bus, setupApp, preloadApp, startApp, destroyApp } from "wujie";
-const { setupApp, preloadApp, bus } = WujieReact
-const map = {
-  "//localhost:7100/": "//wujie-micro.github.io/demo-react17/",
-  "//localhost:7200/": "//wujie-micro.github.io/demo-vue2/",
-  "//localhost:7300/": "//wujie-micro.github.io/demo-vue3/",
-  "//localhost:7400/": "//wujie-micro.github.io/demo-angular12/",
-  "//localhost:7500/": "//wujie-micro.github.io/demo-vite/",
-  "//localhost:7600/": "//wujie-micro.github.io/demo-react16/",
-  "//localhost:7700/": "//wujie-micro.github.io/demo-main-react/",
-  "//localhost:8000/": "//wujie-micro.github.io/demo-main-vue/"
+import sonAppConfig, { TSonIds } from "./sonApplicationConfig"
+import { preOptions } from "wujie"
+const { setupApp, preloadApp } = WujieReact
+
+const preloadApps: Array<preOptions> = []
+
+for (let k in sonAppConfig) {
+  const config = sonAppConfig[k as TSonIds]
+  setupApp(config)
+  if (config.exec && config.url) {
+    const { name, url } = config
+    preloadApps.push({ name, url })
+  }
 }
 
-function hostMap(host: keyof typeof map) {
-  if (process.env.NODE_ENV === "production") return map[host]
-  return host
-}
-function credentialsFetch(url: RequestInfo, options?: RequestInit) {
-  return window.fetch(url, { ...options, credentials: "omit" })
-}
-const degrade =
-  window.localStorage.getItem("degrade") === "true" ||
-  !window.Proxy ||
-  !window.CustomElementRegistry
+preloadApps.forEach(config => preloadApp(config))
 
-const lifecycles = {
-  beforeLoad: (appWindow: Window) =>
-    console.log(`${appWindow.__WUJIE.id} beforeLoad 生命周期`),
-  beforeMount: (appWindow: Window) =>
-    console.log(`${appWindow.__WUJIE.id} beforeMount 生命周期`),
-  afterMount: (appWindow: Window) =>
-    console.log(`${appWindow.__WUJIE.id} afterMount 生命周期`),
-  beforeUnmount: (appWindow: Window) =>
-    console.log(`${appWindow.__WUJIE.id} beforeUnmount 生命周期`),
-  afterUnmount: (appWindow: Window) =>
-    console.log(`${appWindow.__WUJIE.id} afterUnmount 生命周期`),
-  activated: (appWindow: Window) =>
-    console.log(`${appWindow.__WUJIE.id} activated 生命周期`),
-  deactivated: (appWindow: Window) =>
-    console.log(`${appWindow.__WUJIE.id} deactivated 生命周期`),
-  loadError: (url: string, e: Error) => console.log(`${url} 加载失败`, e)
-}
-
-setupApp({
-  name: "react17",
-  url: hostMap("//localhost:7100/"),
-  // attrs,
-  exec: true,
-  alive: true,
-  fetch: credentialsFetch,
-  degrade,
-  ...lifecycles
-})
-
-setupApp({
-  name: "vue2",
-  url: hostMap("//localhost:7200/"),
-  // attrs,
-  exec: true,
-  fetch: credentialsFetch,
-  degrade,
-  ...lifecycles
-})
+// startApp({ name: "react" })
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
