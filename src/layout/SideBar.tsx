@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles"
 
 import MuiDrawer from "@mui/material/Drawer"
@@ -63,17 +64,20 @@ interface SideBarProps {
 const menuConfig = [
   {
     label: "Home",
+    path: "/",
     key: "home",
     icon: <HomeIcon />
   },
   {
     label: "React Son",
     key: "react",
+    path: "react",
     icon: <ReactIcon />
   },
   {
     label: "Vue Son",
     key: "vue",
+    path: "vue",
     icon: <VueIcon />
   }
 ]
@@ -85,6 +89,11 @@ const SideBar: React.FC<SideBarProps> = ({
   drawerHeader: DrawerHeader
 }) => {
   const theme = useTheme()
+  const navigate = useNavigate()
+
+  const handleClickMenu = (path: string) => {
+    navigate(path)
+  }
 
   return (
     <Drawer variant="permanent" open={open} drawerwidth={drawerwidth}>
@@ -102,6 +111,7 @@ const SideBar: React.FC<SideBarProps> = ({
         {menuConfig.map((item, index) => (
           <ListItem key={item.key} disablePadding sx={{ display: "block" }}>
             <ListItemButton
+              onClick={() => handleClickMenu(item.path)}
               sx={{
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
